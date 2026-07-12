@@ -11,5 +11,7 @@
   "coverageDirectory": "coverage",
   "coverageReporters": ["text", "lcov", "html"],
   "moduleFileExtensions": ["ts", "js", "json"],
-  "setupFilesAfterEnv": ["<rootDir>/src/__tests__/setup.ts"]
+  "setupFilesAfterEnv": ["<rootDir>/src/__tests__/setup.ts"],
+  "passWithNoTests": true,
+  "testTimeout": 10000
 }

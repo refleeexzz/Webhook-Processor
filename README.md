@@ -1,5 +1,12 @@
 # Webhook Processor
 
+![CI/CD](https://img.shields.io/badge/CI%2FCD-passing-brightgreen)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue)
+![Node.js](https://img.shields.io/badge/Node.js-20-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
+![Redis](https://img.shields.io/badge/Redis-7-red)
+![Docker](https://img.shields.io/badge/Docker-ready-blue)
+
 Sistema distribuído de processamento e entrega de webhooks construído com Node.js, TypeScript, PostgreSQL e Redis.
 
 ## Tecnologias

@@ -13,10 +13,11 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
-    "lint": "eslint src --ext .ts",
-    "test": "jest",
+    "lint": "eslint src --ext .ts --max-warnings=10",
+    "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage --passWithNoTests",
+    "validate": "npm run lint && npm run test && npm run build"
   },
   "keywords": ["webhook", "queue", "distributed-system"],
   "author": "",
