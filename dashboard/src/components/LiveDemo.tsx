@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createWebhook, createEvent } from '../services/api';
 import { Play, Copy, ExternalLink, CheckCircle2 } from 'lucide-react';
@@ -72,6 +72,7 @@ export const LiveDemo: React.FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<EventTemplate | null>(null);
   const [step, setStep] = useState(1);
   const [isSending, setIsSending] = useState(false);
+  const sendingRef = useRef(false); // extra protection with ref
 
   const createWebhookMutation = useMutation({
     mutationFn: createWebhook,
@@ -88,11 +89,13 @@ export const LiveDemo: React.FC = () => {
     onSuccess: () => {
       setStep(3);
       setIsSending(false);
+      sendingRef.current = false; // reset ref
       queryClient.invalidateQueries({ queryKey: ['events'] });
       queryClient.invalidateQueries({ queryKey: ['metrics'] });
     },
     onError: () => {
       setIsSending(false);
+      sendingRef.current = false; // reset ref
     },
   });
 
@@ -105,17 +108,23 @@ export const LiveDemo: React.FC = () => {
     });
   };
 
-  const handleSendEvent = (template: EventTemplate) => {
-    // prevent multiple clicks
-    if (isSending || createEventMutation.isPending) return;
+  const handleSendEvent = useCallback((template: EventTemplate) => {
+    // triple protection: state + ref + isPending
+    if (isSending || sendingRef.current || createEventMutation.isPending) {
+      console.log('Blocked duplicate click');
+      return;
+    }
 
+    console.log('Sending event:', template.type);
+    sendingRef.current = true;
     setIsSending(true);
     setSelectedTemplate(template);
+
     createEventMutation.mutate({
       type: template.type,
       payload: template.payload,
     });
-  };
+  }, [isSending, createEventMutation]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -236,7 +245,11 @@ export const LiveDemo: React.FC = () => {
                   </div>
                   <button
                     className="btn btn-primary btn-sm"
-                    onClick={() => handleSendEvent(template)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleSendEvent(template);
+                    }}
                     disabled={!generatedWebhook || isSending}
                   >
                     <Play size={14} />
