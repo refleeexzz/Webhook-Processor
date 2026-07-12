@@ -2,7 +2,7 @@
 
 Sistema distribuído de processamento e entrega de webhooks construído com Node.js, TypeScript, PostgreSQL e Redis.
 
-## 🚀 Tecnologias
+## Tecnologias
 
 - **Node.js** + **TypeScript**
 - **PostgreSQL** (banco de dados relacional)
@@ -11,21 +11,21 @@ Sistema distribuído de processamento e entrega de webhooks construído com Node
 - **Prisma** (ORM)
 - **Docker** (containerização)
 
-## 📋 Funcionalidades
+## Funcionalidades
 
-- ✅ Criação de eventos via API REST
-- ✅ Cadastro de webhooks com URLs de destino
-- ✅ Processamento assíncrono com filas (BullMQ)
-- ✅ Entrega de webhooks com retry automático
-- ✅ Backoff exponencial para retentativas
-- ✅ Assinatura HMAC SHA-256 para validação
-- ✅ Dead letter queue para falhas permanentes
-- ✅ Idempotência e consistência de dados
-- ✅ Logging estruturado (JSON)
-- ✅ Error handling robusto
-- ✅ Testes automatizados (Jest)
+- Criação de eventos via API REST
+- Cadastro de webhooks com URLs de destino
+- Processamento assíncrono com filas (BullMQ)
+- Entrega de webhooks com retry automático
+- Backoff exponencial para retentativas
+- Assinatura HMAC SHA-256 para validação
+- Dead letter queue para falhas permanentes
+- Idempotência e consistência de dados
+- Logging estruturado (JSON)
+- Error handling robusto
+- Testes automatizados (Jest)
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 ```
 ┌─────────────┐
@@ -58,7 +58,7 @@ Sistema distribuído de processamento e entrega de webhooks construído com Node
                     └──────────────┘
 ```
 
-## 🛠️ Setup
+## Setup
 
 ### 1. Clonar o repositório
 
@@ -104,7 +104,7 @@ npm run dev
 npm run worker
 ```
 
-## 📡 Endpoints
+## Endpoints
 
 ### Criar evento
 
@@ -168,7 +168,7 @@ Content-Type: application/json
 DELETE /api/webhooks/:id
 ```
 
-## 🔐 Segurança
+## Segurança
 
 Todos os webhooks são assinados com HMAC SHA-256. O header `X-Webhook-Signature` contém a assinatura.
 
@@ -190,14 +190,14 @@ function verifySignature(payload: string, signature: string, secret: string): bo
 }
 ```
 
-## 🔄 Retry Logic
+## Retry Logic
 
 - Retry automático com backoff exponencial
 - 5 tentativas por padrão
 - Delays: 1s, 2s, 4s, 8s, 16s
 - Após esgotar tentativas, move para dead letter queue
 
-## 📊 Monitoramento
+## Monitoramento
 
 Acesse o Prisma Studio para visualizar os dados:
 
@@ -205,7 +205,7 @@ Acesse o Prisma Studio para visualizar os dados:
 npm run db:studio
 ```
 
-## 🧪 Testando
+## Testando
 
 ### Testes Automatizados
 
@@ -243,12 +243,12 @@ curl -X POST localhost:3000/api/events \
   -d '{"type":"test.event","payload":{"message":"Hello World"}}'
 ```
 
-## 📚 Documentação
+## Documentação
 
 - [Exemplos de API](./docs/API_EXAMPLES.md)
 - [Arquitetura do Sistema](./docs/ARCHITECTURE.md)
 
-## 🛠️ Comandos Úteis
+## Comandos Úteis
 
 ```bash
 # Desenvolvimento
@@ -268,7 +268,7 @@ npm run lint         # Roda ESLint
 npm test             # Roda testes
 ```
 
-## 🎯 Por que este projeto demonstra competência técnica?
+## Por que este projeto demonstra competência técnica?
 
 Este projeto foi construído para demonstrar conhecimentos alinhados com ambientes de produção modernos:
 
@@ -301,14 +301,14 @@ Este projeto foi construído para demonstrar conhecimentos alinhados com ambient
 - Variáveis de ambiente configuráveis
 - Graceful shutdown handling
 
-## 📝 Notas de Implementação
+## Notas de Implementação
 
 - **PostgreSQL**: Escolhido pela consistência ACID e suporte a JSON
 - **BullMQ**: Sistema de filas robusto com retry nativo
 - **Prisma**: ORM type-safe com migrations
 - **Express**: Framework minimalista e amplamente adotado
 
-## 🚀 Próximos Passos
+## Próximos Passos
 
 - [ ] Rate limiting por webhook
 - [ ] Dashboard web para monitoramento

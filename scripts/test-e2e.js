@@ -29,11 +29,11 @@ async function sleep(ms) {
 }
 
 async function main() {
-  console.log('🚀 Starting end-to-end test\n');
+  console.log('[TEST] Starting end-to-end test\n');
 
   try {
     // 1. Criar um webhook de teste
-    console.log('1️⃣  Creating webhook...');
+    console.log('[1] Creating webhook...');
     const webhookRes = await request('POST', '/webhooks', {
       url: 'https://webhook.site/unique-url-here',
       eventTypes: ['test.event', 'user.created'],
@@ -44,12 +44,12 @@ async function main() {
     }
 
     const webhook = webhookRes.data.data;
-    console.log(`✅ Webhook created: ${webhook.id}`);
-    console.log(`   URL: ${webhook.url}`);
-    console.log(`   Secret: ${webhook.secret}\n`);
+    console.log(`[OK] Webhook created: ${webhook.id}`);
+    console.log(`    URL: ${webhook.url}`);
+    console.log(`    Secret: ${webhook.secret}\n`);
 
     // 2. Criar um evento
-    console.log('2️⃣  Creating event...');
+    console.log('[2] Creating event...');
     const eventRes = await request('POST', '/events', {
       type: 'test.event',
       payload: {
@@ -63,14 +63,14 @@ async function main() {
     }
 
     const event = eventRes.data.data;
-    console.log(`✅ Event created: ${event.id}\n`);
+    console.log(`[OK] Event created: ${event.id}\n`);
 
     // 3. Aguardar processamento (workers devem estar rodando)
-    console.log('3️⃣  Waiting for processing...');
+    console.log('[3] Waiting for processing...');
     await sleep(2000);
 
     // 4. Verificar o evento e suas deliveries
-    console.log('4️⃣  Checking event details...');
+    console.log('[4] Checking event details...');
     const eventCheckRes = await request('GET', `/events/${event.id}`);
 
     if (eventCheckRes.status !== 200) {
@@ -78,33 +78,33 @@ async function main() {
     }
 
     const eventDetails = eventCheckRes.data.data;
-    console.log(`✅ Event has ${eventDetails.deliveries.length} deliveries\n`);
+    console.log(`[OK] Event has ${eventDetails.deliveries.length} deliveries\n`);
 
     if (eventDetails.deliveries.length > 0) {
-      console.log('📊 Delivery statuses:');
+      console.log('[INFO] Delivery statuses:');
       eventDetails.deliveries.forEach((delivery, i) => {
-        console.log(`   ${i + 1}. ${delivery.id} - Status: ${delivery.status} (${delivery.attempts} attempts)`);
+        console.log(`      ${i + 1}. ${delivery.id} - Status: ${delivery.status} (${delivery.attempts} attempts)`);
       });
     }
 
     // 5. Listar todos os webhooks
-    console.log('\n5️⃣  Listing all webhooks...');
+    console.log('\n[5] Listing all webhooks...');
     const webhooksRes = await request('GET', '/webhooks');
-    console.log(`✅ Found ${webhooksRes.data.data.length} webhooks\n`);
+    console.log(`[OK] Found ${webhooksRes.data.data.length} webhooks\n`);
 
     // 6. Listar todos os eventos
-    console.log('6️⃣  Listing all events...');
+    console.log('[6] Listing all events...');
     const eventsRes = await request('GET', '/events');
-    console.log(`✅ Found ${eventsRes.data.data.length} events\n`);
+    console.log(`[OK] Found ${eventsRes.data.data.length} events\n`);
 
-    console.log('🎉 End-to-end test completed successfully!\n');
-    console.log('💡 Tips:');
-    console.log('   - Check webhook.site to see if the webhook was delivered');
-    console.log('   - Run Prisma Studio to inspect database: npm run db:studio');
-    console.log('   - Check worker logs for processing details\n');
+    console.log('[SUCCESS] End-to-end test completed successfully!\n');
+    console.log('[TIPS]');
+    console.log('  - Check webhook.site to see if the webhook was delivered');
+    console.log('  - Run Prisma Studio to inspect database: npm run db:studio');
+    console.log('  - Check worker logs for processing details\n');
 
   } catch (error) {
-    console.error('❌ Test failed:', error.message);
+    console.error('[ERROR] Test failed:', error.message);
     process.exit(1);
   }
 }
