@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq';
-import { redisOptions, webhookDeliveryQueue } from '../config/queue';
+import { queueConnection, webhookDeliveryQueue } from '../config/queue';
 import { DeliveryService } from '../services/delivery.service';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
@@ -46,7 +46,7 @@ export const webhookDeliveryWorker = new Worker(
     return { deliveryId, success };
   },
   {
-    connection: redisOptions,
+    connection: queueConnection,
     concurrency: env.WORKER_CONCURRENCY,
   }
 );

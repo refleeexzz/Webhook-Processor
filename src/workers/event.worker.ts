@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq';
-import { redisOptions } from '../config/queue';
+import { queueConnection } from '../config/queue';
 import { prisma } from '../config/database';
 import { webhookDeliveryQueue } from '../config/queue';
 import { WebhookService } from '../services/webhook.service';
@@ -51,7 +51,7 @@ export const eventWorker = new Worker(
     return { eventId, deliveriesCreated: deliveries.length };
   },
   {
-    connection: redisOptions,
+    connection: queueConnection,
     concurrency: 5,
   }
 );
