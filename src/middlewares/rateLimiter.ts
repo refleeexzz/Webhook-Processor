@@ -3,30 +3,30 @@ import RedisStore from 'rate-limit-redis';
 import { redisConnection } from '../config/queue';
 import { env } from '../config/env';
 
-// Rate limiter geral para toda a API
+// general api rate limiter
 export const apiRateLimiter = rateLimit({
   store: new RedisStore({
-    // @ts-ignore - Types mismatch between redis and rate-limit-redis
+    // @ts-expect-error - type mismatch between redis and rate-limit-redis
     sendCommand: (...args: string[]) => redisConnection.call(...args),
   }),
-  windowMs: 60 * 1000, // 1 minuto
-  max: env.NODE_ENV === 'production' ? 100 : 1000, // 100 req/min em prod
+  windowMs: 60 * 1000,
+  max: env.NODE_ENV === 'production' ? 100 : 1000,
   message: {
     success: false,
     error: 'Too many requests, please try again later.',
   },
-  standardHeaders: true, // Return rate limit info in headers
+  standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Rate limiter estrito para criação de eventos (simula fintech)
+// strict rate limiter for event creation (fintech pattern)
 export const createEventRateLimiter = rateLimit({
   store: new RedisStore({
-    // @ts-ignore
+    // @ts-expect-error - type mismatch between redis and rate-limit-redis
     sendCommand: (...args: string[]) => redisConnection.call(...args),
   }),
-  windowMs: 60 * 1000, // 1 minuto
-  max: env.NODE_ENV === 'production' ? 10 : 100, // 10 events/min em prod
+  windowMs: 60 * 1000,
+  max: env.NODE_ENV === 'production' ? 10 : 100,
   message: {
     success: false,
     error: 'Event creation rate limit exceeded. Max 10 events per minute.',
@@ -34,19 +34,19 @@ export const createEventRateLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    // Rate limit por IP + opcional API key no futuro
+    // rate limit by ip, could add api key later
     return req.ip || 'unknown';
   },
 });
 
-// Rate limiter para webhooks
+// rate limiter for webhook operations
 export const webhookRateLimiter = rateLimit({
   store: new RedisStore({
-    // @ts-ignore
+    // @ts-expect-error - type mismatch between redis and rate-limit-redis
     sendCommand: (...args: string[]) => redisConnection.call(...args),
   }),
   windowMs: 60 * 1000,
-  max: 20, // 20 webhook operations/min
+  max: 20,
   message: {
     success: false,
     error: 'Webhook operation rate limit exceeded.',

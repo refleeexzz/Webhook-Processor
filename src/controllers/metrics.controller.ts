@@ -11,10 +11,10 @@ export class MetricsController {
         activeWebhooks,
         deliveryStats,
       ] = await Promise.all([
-        // Total de eventos
+        // total eventos
         prisma.event.count(),
 
-        // Total de webhooks
+        // total webhooks
         prisma.webhook.count(),
 
         // Webhooks ativos
@@ -22,7 +22,7 @@ export class MetricsController {
           where: { isActive: true },
         }),
 
-        // Status de deliveries
+        // status of deliveries
         prisma.webhookDelivery.groupBy({
           by: ['status'],
           _count: {
@@ -31,7 +31,7 @@ export class MetricsController {
         }),
       ]);
 
-      // Calcular taxa de sucesso
+      // calculate success rate
       const successCount = deliveryStats.find(
         (s) => s.status === DeliveryStatus.SUCCESS
       )?._count.status || 0;

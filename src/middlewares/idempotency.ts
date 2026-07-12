@@ -3,13 +3,13 @@ import { prisma } from '../config/database';
 import { logger } from '../utils/logger';
 
 /**
- * Middleware de idempotência
+ * idempotency middleware
  *
- * Garante que requisições duplicadas (mesmo idempotency-key) retornem
- * a mesma resposta sem reprocessar. Essencial para operações financeiras
- * onde duplicação pode causar cobranças múltiplas.
+ * ensures duplicate requests (same idempotency-key) return the same response
+ * without reprocessing. essential for financial operations where duplicates
+ * could cause multiple charges.
  *
- * Cliente deve enviar header: Idempotency-Key: <uuid>
+ * client should send header: idempotency-key: <uuid>
  */
 export function idempotencyMiddleware(
   req: Request,
@@ -18,12 +18,12 @@ export function idempotencyMiddleware(
 ): void {
   const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
 
-  // Se não tem key, continua normalmente (não obrigatório para GET/DELETE)
+  // no key means continue normally (not required for get/delete)
   if (!idempotencyKey) {
     return next();
   }
 
-  // Validar formato UUID
+  // validate uuid format
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(idempotencyKey)) {
     res.status(400).json({
@@ -33,44 +33,44 @@ export function idempotencyMiddleware(
     return;
   }
 
-  // Verificar se já existe resposta cacheada
+  // check if cached response exists
   prisma.idempotencyCache
     .findUnique({
       where: { key: idempotencyKey },
     })
     .then((cached) => {
       if (cached) {
-        // Verificar se não expirou
+        // check if not expired
         if (cached.expiresAt > new Date()) {
           logger.info('Idempotency key hit', {
             key: idempotencyKey,
             path: req.path,
           });
 
-          // Retornar resposta cacheada
+          // return cached response
           res.status(cached.statusCode).json(cached.response);
           return;
         } else {
-          // Expirou, remover do cache
+          // expired, remove from cache
           prisma.idempotencyCache.delete({
             where: { key: idempotencyKey },
           }).catch(() => {
-            // Ignore delete errors
+            // ignore delete errors
           });
         }
       }
 
-      // Não existe ou expirou, continuar processamento
-      // Interceptar a resposta para cachear
+      // doesn't exist or expired, continue processing
+      // intercept response to cache it
       const originalJson = res.json.bind(res);
 
       res.json = function (data: any) {
         const statusCode = res.statusCode;
 
-        // Cachear apenas respostas de sucesso (2xx)
+        // only cache success responses (2xx)
         if (statusCode >= 200 && statusCode < 300) {
           const expiresAt = new Date();
-          expiresAt.setHours(expiresAt.getHours() + 24); // 24h de cache
+          expiresAt.setHours(expiresAt.getHours() + 24); // 24h cache
 
           prisma.idempotencyCache.create({
             data: {
@@ -93,7 +93,7 @@ export function idempotencyMiddleware(
     })
     .catch((error) => {
       logger.error('Idempotency middleware error', error);
-      // Em caso de erro no cache, continua processamento normal
+      // on cache error, continue normal processing
       next();
     });
 }

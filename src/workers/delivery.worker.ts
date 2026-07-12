@@ -18,7 +18,7 @@ export const webhookDeliveryWorker = new Worker(
     if (!success) {
       const delivery = await deliveryService.getDelivery(deliveryId);
 
-      // Se não atingiu o limite, reagendar
+      // if no atingiu o limite, reagendar
       if (delivery && delivery.status === 'FAILED' && delivery.nextRetryAt) {
         const delay = delivery.nextRetryAt.getTime() - Date.now();
 

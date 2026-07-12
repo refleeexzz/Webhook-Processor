@@ -9,15 +9,15 @@ interface AuditMetadata {
 }
 
 /**
- * Middleware de auditoria
- * Registra todas as ações importantes no sistema para compliance
+ * audit middleware
+ * logs all important actions for compliance tracking
  */
 export function auditLogger(metadata: AuditMetadata) {
   return async (req: Request, res: Response, next: NextFunction) => {
     const originalJson = res.json.bind(res);
 
     res.json = function (data: any) {
-      // Registrar apenas em sucesso (2xx)
+      // only log successful responses (2xx)
       if (res.statusCode >= 200 && res.statusCode < 300) {
         const entityId = metadata.entityId || data?.data?.id || 'unknown';
 
@@ -52,7 +52,7 @@ export function auditLogger(metadata: AuditMetadata) {
 }
 
 /**
- * Helper para criar audit logs manualmente
+ * helper to create audit logs manually
  */
 export async function createAuditLog(data: {
   action: string;

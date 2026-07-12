@@ -42,7 +42,7 @@ export class DeliveryService {
     const signature = signPayload(payload, webhook.secret);
 
     try {
-      // Atualizar status para PROCESSING
+      // update status to PROCESSING
       await prisma.webhookDelivery.update({
         where: { id: deliveryId },
         data: {
@@ -52,7 +52,7 @@ export class DeliveryService {
         },
       });
 
-      // Fazer requisição HTTP
+      // make http request
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), env.WEBHOOK_TIMEOUT_MS);
 
@@ -90,7 +90,7 @@ export class DeliveryService {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const newAttempts = delivery.attempts + 1;
 
-      // Se excedeu o máximo de tentativas, mover para dead letter
+      // Se excedeu o max attempts, move to dead letter
       if (newAttempts >= env.MAX_RETRY_ATTEMPTS) {
         await prisma.webhookDelivery.update({
           where: { id: deliveryId },

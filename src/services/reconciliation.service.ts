@@ -26,7 +26,7 @@ export class ReconciliationService {
       deadLetterCount,
       orphanedDeliveries,
     ] = await Promise.all([
-      // Eventos que têm webhooks ativos mas não geraram deliveries
+      // events with active webhooks but no deliveries generated
       prisma.$queryRaw`
         SELECT e.id, e.type, e.created_at
         FROM events e
@@ -42,12 +42,12 @@ export class ReconciliationService {
         LIMIT 100
       `,
 
-      // Deliveries que falharam recentemente
+      // recently failed deliveries
       prisma.webhookDelivery.findMany({
         where: {
           status: 'FAILED',
           updatedAt: {
-            gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // últimas 24h
+            gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // last 24h
           },
         },
         include: {
@@ -57,12 +57,12 @@ export class ReconciliationService {
         take: 50,
       }),
 
-      // Count de dead letters
+      // count of dead letters
       prisma.webhookDelivery.count({
         where: { status: 'DEAD_LETTER' },
       }),
 
-      // Deliveries órfãs (webhook deletado)
+      // orphaned deliveries (webhook deleted)
       prisma.$queryRaw`
         SELECT wd.id, wd.webhook_id, wd.status
         FROM webhook_deliveries wd
@@ -165,7 +165,7 @@ export class ReconciliationService {
 
   /**
    * Calcula métricas de SLA (Service Level Agreement)
-   * Importante para fintech: uptime, latência, taxa de sucesso
+   * Importante para fintech: uptime, latência, success rate
    */
   async calculateSLA(startDate: Date, endDate: Date) {
     const [deliveryStats, avgProcessingTime] = await Promise.all([

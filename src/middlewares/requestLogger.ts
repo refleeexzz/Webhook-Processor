@@ -4,7 +4,7 @@ import { logger } from '../utils/logger';
 export function requestLogger(req: Request, res: Response, next: NextFunction): void {
   const start = Date.now();
 
-  // Log quando a resposta terminar
+  // log when response ends
   res.on('finish', () => {
     const duration = Date.now() - start;
 

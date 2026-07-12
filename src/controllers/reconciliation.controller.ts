@@ -50,7 +50,7 @@ export class ReconciliationController {
 
       const start = startDate
         ? new Date(startDate as string)
-        : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 dias atrás
+        : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
 
       const end = endDate ? new Date(endDate as string) : new Date();
 

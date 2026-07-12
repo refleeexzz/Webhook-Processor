@@ -16,7 +16,7 @@ export const eventWorker = new Worker(
 
     logger.info('Processing event', { eventId, jobId: job.id });
 
-    // Buscar o evento
+    // fetch the event
     const event = await prisma.event.findUnique({
       where: { id: eventId },
     });
@@ -25,7 +25,7 @@ export const eventWorker = new Worker(
       throw new Error(`Event ${eventId} not found`);
     }
 
-    // Buscar webhooks ativos para esse tipo de evento
+    // fetch active webhooks for this event type
     const webhooks = await webhookService.getActiveWebhooksForEvent(event.type);
 
     logger.debug('Found webhooks for event', {
@@ -34,12 +34,12 @@ export const eventWorker = new Worker(
       webhookCount: webhooks.length,
     });
 
-    // Criar deliveries para cada webhook
+    // create deliveries for each webhook
     const deliveries = await Promise.all(
       webhooks.map(async (webhook) => {
         const delivery = await deliveryService.createDelivery(event.id, webhook.id);
 
-        // Adicionar à fila de entrega
+        // add to delivery queue
         await webhookDeliveryQueue.add('deliver-webhook', {
           deliveryId: delivery.id,
         });

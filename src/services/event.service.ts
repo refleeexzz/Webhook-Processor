@@ -4,19 +4,19 @@ import { CreateEventInput } from '../schemas';
 
 export class EventService {
   async createEvent(data: CreateEventInput, idempotencyKey?: string) {
-    // Se tem idempotency key, verificar se já existe
+    // check if event with this idempotency key already exists
     if (idempotencyKey) {
       const existing = await prisma.event.findUnique({
         where: { idempotencyKey },
       });
 
       if (existing) {
-        // Retornar evento existente sem reprocessar
+        // return existing event without reprocessing
         return existing;
       }
     }
 
-    // Criar evento no banco
+    // create event in database
     const event = await prisma.event.create({
       data: {
         type: data.type,
@@ -25,7 +25,7 @@ export class EventService {
       },
     });
 
-    // Adicionar à fila para processamento assíncrono
+    // add to queue for async processing
     await eventQueue.add('process-event', {
       eventId: event.id,
     });
