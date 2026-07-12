@@ -71,6 +71,7 @@ export const LiveDemo: React.FC = () => {
   const [generatedWebhook, setGeneratedWebhook] = useState<any>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<EventTemplate | null>(null);
   const [step, setStep] = useState(1);
+  const [isSending, setIsSending] = useState(false);
 
   const createWebhookMutation = useMutation({
     mutationFn: createWebhook,
@@ -86,20 +87,14 @@ export const LiveDemo: React.FC = () => {
       createEvent({ type, payload }),
     onSuccess: () => {
       setStep(3);
+      setIsSending(false);
       queryClient.invalidateQueries({ queryKey: ['events'] });
       queryClient.invalidateQueries({ queryKey: ['metrics'] });
     },
+    onError: () => {
+      setIsSending(false);
+    },
   });
-
-  const handleGenerateWebhookSite = () => {
-    // generate a unique id for webhook.site (fallback for browsers without crypto.randomUUID)
-    const uniqueId =
-      typeof crypto !== 'undefined' && crypto.randomUUID
-        ? crypto.randomUUID().split('-')[0]
-        : Math.random().toString(36).substring(2, 10);
-    const url = `https://webhook.site/${uniqueId}`;
-    setWebhookSiteUrl(url);
-  };
 
   const handleCreateWebhook = () => {
     if (!webhookSiteUrl) return;
@@ -111,6 +106,10 @@ export const LiveDemo: React.FC = () => {
   };
 
   const handleSendEvent = (template: EventTemplate) => {
+    // prevent multiple clicks
+    if (isSending || createEventMutation.isPending) return;
+
+    setIsSending(true);
     setSelectedTemplate(template);
     createEventMutation.mutate({
       type: template.type,
@@ -238,10 +237,10 @@ export const LiveDemo: React.FC = () => {
                   <button
                     className="btn btn-primary btn-sm"
                     onClick={() => handleSendEvent(template)}
-                    disabled={!generatedWebhook || createEventMutation.isPending}
+                    disabled={!generatedWebhook || isSending}
                   >
                     <Play size={14} />
-                    Enviar
+                    {isSending && selectedTemplate?.type === template.type ? 'Sending...' : 'Send'}
                   </button>
                 </div>
               ))}
