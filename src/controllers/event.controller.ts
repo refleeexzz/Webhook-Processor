@@ -8,7 +8,9 @@ export class EventController {
   async create(req: Request, res: Response) {
     try {
       const data = createEventSchema.parse(req.body);
-      const event = await eventService.createEvent(data);
+      const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
+
+      const event = await eventService.createEvent(data, idempotencyKey);
 
       return res.status(201).json({
         success: true,

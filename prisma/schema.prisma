@@ -8,15 +8,17 @@ datasource db {
 }
 
 model Event {
-  id        String   @id @default(uuid())
-  type      String
-  payload   Json
-  createdAt DateTime @default(now())
+  id              String   @id @default(uuid())
+  type            String
+  payload         Json
+  idempotencyKey  String?  @unique
+  createdAt       DateTime @default(now())
 
   deliveries WebhookDelivery[]
 
   @@index([type])
   @@index([createdAt])
+  @@index([idempotencyKey])
   @@map("events")
 }
 
@@ -65,4 +67,32 @@ enum DeliveryStatus {
   SUCCESS
   FAILED
   DEAD_LETTER
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  action       String
+  entityType   String
+  entityId     String
+  userId       String?
+  ipAddress    String?
+  userAgent    String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model IdempotencyCache {
+  key          String   @id
+  response     Json
+  statusCode   Int
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([expiresAt])
+  @@map("idempotency_cache")
 }
