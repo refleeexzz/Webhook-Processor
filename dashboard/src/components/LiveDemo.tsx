@@ -92,8 +92,11 @@ export const LiveDemo: React.FC = () => {
   });
 
   const handleGenerateWebhookSite = () => {
-    // Gera um UUID único para webhook.site
-    const uniqueId = crypto.randomUUID().split('-')[0];
+    // generate a unique id for webhook.site (fallback for browsers without crypto.randomUUID)
+    const uniqueId =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID().split('-')[0]
+        : Math.random().toString(36).substring(2, 10);
     const url = `https://webhook.site/${uniqueId}`;
     setWebhookSiteUrl(url);
   };
@@ -127,22 +130,24 @@ export const LiveDemo: React.FC = () => {
       </div>
 
       <div className="demo-steps">
-        {/* Step 1: Generate Webhook.site URL */}
+        {/* Step 1: Enter Webhook.site URL */}
         <div className={`demo-step ${step >= 1 ? 'active' : ''}`}>
           <div className="step-number">1</div>
           <div className="step-content">
-            <h3>Gerar URL do Webhook.site</h3>
-            <p>Webhook.site é um serviço que captura e exibe webhooks recebidos</p>
+            <h3>Paste Your Webhook.site URL</h3>
+            <p>webhook.site is a service that captures and displays webhooks in real-time</p>
 
             <div className="step-actions">
-              <button
-                className="btn btn-primary"
-                onClick={handleGenerateWebhookSite}
-                disabled={!!webhookSiteUrl}
-              >
-                <Play size={16} />
-                Gerar URL Única
-              </button>
+              <div className="manual-url-input">
+                <input
+                  type="text"
+                  placeholder="https://webhook.site/your-unique-id"
+                  value={webhookSiteUrl}
+                  onChange={(e) => setWebhookSiteUrl(e.target.value)}
+                  className="url-input"
+                  disabled={!!generatedWebhook}
+                />
+              </div>
 
               {webhookSiteUrl && (
                 <div className="generated-url">
@@ -155,7 +160,7 @@ export const LiveDemo: React.FC = () => {
                   <button
                     className="btn btn-icon"
                     onClick={() => copyToClipboard(webhookSiteUrl)}
-                    title="Copiar"
+                    title="Copy"
                   >
                     <Copy size={16} />
                   </button>
@@ -164,12 +169,20 @@ export const LiveDemo: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-icon"
-                    title="Abrir"
+                    title="Open"
                   >
                     <ExternalLink size={16} />
                   </a>
                 </div>
               )}
+
+              <div className="url-hint">
+                <strong>Tip:</strong> Open{' '}
+                <a href="https://webhook.site" target="_blank" rel="noopener noreferrer">
+                  webhook.site
+                </a>{' '}
+                in another tab, copy your unique URL, and paste it above
+              </div>
             </div>
           </div>
         </div>
@@ -178,8 +191,8 @@ export const LiveDemo: React.FC = () => {
         <div className={`demo-step ${step >= 2 ? 'active' : ''}`}>
           <div className="step-number">2</div>
           <div className="step-content">
-            <h3>Registrar Webhook no Sistema</h3>
-            <p>Criar um webhook apontando para o webhook.site</p>
+            <h3>Register Webhook in System</h3>
+            <p>Create a webhook pointing to webhook.site</p>
 
             <div className="step-actions">
               <button
@@ -194,7 +207,7 @@ export const LiveDemo: React.FC = () => {
                 <div className="webhook-created">
                   <CheckCircle2 size={20} color="#48bb78" />
                   <div>
-                    <strong>Webhook Criado!</strong>
+                    <strong>Webhook Created!</strong>
                     <div className="webhook-info-small">
                       ID: {generatedWebhook.id}
                       <br />
@@ -211,8 +224,8 @@ export const LiveDemo: React.FC = () => {
         <div className={`demo-step ${step >= 3 ? 'active' : ''}`}>
           <div className="step-number">3</div>
           <div className="step-content">
-            <h3>Enviar Eventos</h3>
-            <p>Escolha um template e envie um evento. Veja o webhook ser entregue no webhook.site!</p>
+            <h3>Send Events</h3>
+            <p>Choose a template and send an event. Watch the webhook being delivered to webhook.site!</p>
 
             <div className="event-templates">
               {EVENT_TEMPLATES.map((template) => (
@@ -236,17 +249,17 @@ export const LiveDemo: React.FC = () => {
 
             {selectedTemplate && (
               <div className="sent-event-info">
-                <h4>Evento Enviado!</h4>
+                <h4>Event Sent!</h4>
                 <p>
                   Evento <code>{selectedTemplate.type}</code> foi criado e o webhook está sendo
                   processado.
                 </p>
                 <p>
-                  <strong>Agora:</strong> Abra o{' '}
+                  <strong>Now:</strong> Abra o{' '}
                   <a href={webhookSiteUrl} target="_blank" rel="noopener noreferrer">
                     webhook.site
                   </a>{' '}
-                  para ver a requisição chegando em tempo real!
+                  to see the request arriving in real-time!
                 </p>
               </div>
             )}
@@ -258,10 +271,10 @@ export const LiveDemo: React.FC = () => {
           <div className="demo-step active">
             <div className="step-number">4</div>
             <div className="step-content">
-              <h3>Verificar Entrega</h3>
+              <h3>Check Delivery</h3>
               <div className="verification-box">
                 <p>
-                  <strong>No webhook.site você verá:</strong>
+                  <strong>On webhook.site you will see:</strong>
                 </p>
                 <ul>
                   <li>✅ POST request recebido</li>

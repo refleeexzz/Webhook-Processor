@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getEvents, getAuditTrail } from '../services/api';
-import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { Clock, CheckCircle, XCircle, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+
+// simple time ago formatter
+function formatTimeAgo(date: Date): string {
+  const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return 'just now';
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  return `${Math.floor(seconds / 86400)}d ago`;
+}
 
 export const EventTimeline: React.FC = () => {
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
@@ -57,8 +65,8 @@ export const EventTimeline: React.FC = () => {
       <div className="timeline">
         {events.length === 0 ? (
           <div className="timeline-empty">
-            <p>Nenhum evento criado ainda</p>
-            <small>Use o Live Demo acima para criar eventos</small>
+            <p>No events created yet</p>
+            <small>Use the Live Demo above to create events</small>
           </div>
         ) : (
           events.map((event: any) => (
@@ -77,10 +85,7 @@ export const EventTimeline: React.FC = () => {
                   <div className="timeline-title">
                     <span className="event-type-badge">{event.type}</span>
                     <span className="event-time">
-                      {formatDistanceToNow(new Date(event.createdAt), {
-                        addSuffix: true,
-                        locale: ptBR,
-                      })}
+                      {formatTimeAgo(new Date(event.createdAt))}
                     </span>
                   </div>
                   <button className="expand-btn">
