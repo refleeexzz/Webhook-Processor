@@ -3,12 +3,15 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Install build dependencies
+RUN apk add --no-cache python3 make g++
+
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy source code
 COPY . .
@@ -24,12 +27,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Install runtime dependencies
+RUN apk add --no-cache openssl
+
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install production dependencies only
-RUN npm ci --only=production
+RUN npm ci --only=production --legacy-peer-deps
 
 # Copy Prisma Client from builder
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma

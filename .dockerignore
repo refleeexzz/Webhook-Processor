@@ -1,11 +1,44 @@
-# Ignore files for Docker build
+# Dependencies
 node_modules
+npm-debug.log
+yarn-error.log
+
+# Build output
 dist
-*.log
+build
+*.tsbuildinfo
+
+# Environment
 .env
-.git
-.gitignore
-coverage
-*.md
+.env.local
+.env.*.local
+
+# IDE
 .vscode
 .idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+*.md
+docs
+
+# Testing
+coverage
+.nyc_output
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Development
+scripts/dev-all.js
+scripts/test-e2e.js
+
+# Dashboard (separate build)
+dashboard
