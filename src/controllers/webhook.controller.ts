@@ -52,7 +52,7 @@ export class WebhookController {
     }
   }
 
-  async list(req: Request, res: Response) {
+  async list(_req: Request, res: Response) {
     try {
       const webhooks = await webhookService.listWebhooks();
 

@@ -3,7 +3,7 @@ import { prisma } from '../config/database';
 import { DeliveryStatus } from '@prisma/client';
 
 export class MetricsController {
-  async getMetrics(req: Request, res: Response) {
+  async getMetrics(_req: Request, res: Response) {
     try {
       const [
         totalEvents,
