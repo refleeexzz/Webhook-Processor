@@ -4,7 +4,7 @@ import { ReconciliationService } from '../services/reconciliation.service';
 const reconciliationService = new ReconciliationService();
 
 export class ReconciliationController {
-  async checkIntegrity(req: Request, res: Response) {
+  async checkIntegrity(_req: Request, res: Response) {
     try {
       const result = await reconciliationService.checkIntegrity();
 
