@@ -2,6 +2,7 @@ import { Worker, Job } from 'bullmq';
 import { redisConnection, webhookDeliveryQueue } from '../config/queue';
 import { DeliveryService } from '../services/delivery.service';
 import { env } from '../config/env';
+import { logger } from '../utils/logger';
 
 const deliveryService = new DeliveryService();
 
@@ -10,7 +11,7 @@ export const webhookDeliveryWorker = new Worker(
   async (job: Job) => {
     const { deliveryId } = job.data;
 
-    console.log(`[Delivery Worker] Attempting delivery ${deliveryId}`);
+    logger.info('Attempting webhook delivery', { deliveryId, jobId: job.id });
 
     const success = await deliveryService.attemptDelivery(deliveryId);
 
@@ -27,10 +28,19 @@ export const webhookDeliveryWorker = new Worker(
           { delay: Math.max(0, delay) }
         );
 
-        console.log(`[Delivery Worker] Delivery ${deliveryId} rescheduled for retry in ${delay}ms`);
+        logger.warn('Delivery rescheduled for retry', {
+          deliveryId,
+          delayMs: delay,
+          attempt: delivery.attempts,
+        });
       } else if (delivery && delivery.status === 'DEAD_LETTER') {
-        console.error(`[Delivery Worker] Delivery ${deliveryId} moved to dead letter queue`);
+        logger.error('Delivery moved to dead letter queue', null, {
+          deliveryId,
+          attempts: delivery.attempts,
+        });
       }
+    } else {
+      logger.info('Delivery successful', { deliveryId });
     }
 
     return { deliveryId, success };
@@ -42,9 +52,9 @@ export const webhookDeliveryWorker = new Worker(
 );
 
 webhookDeliveryWorker.on('completed', (job) => {
-  console.log(`[Delivery Worker] Job ${job.id} completed:`, job.returnvalue);
+  logger.debug('Delivery job completed', { jobId: job.id, result: job.returnvalue });
 });
 
 webhookDeliveryWorker.on('failed', (job, err) => {
-  console.error(`[Delivery Worker] Job ${job?.id} failed:`, err.message);
+  logger.error('Delivery job failed', err, { jobId: job?.id });
 });

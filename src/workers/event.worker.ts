@@ -4,6 +4,7 @@ import { prisma } from '../config/database';
 import { webhookDeliveryQueue } from '../config/queue';
 import { WebhookService } from '../services/webhook.service';
 import { DeliveryService } from '../services/delivery.service';
+import { logger } from '../utils/logger';
 
 const webhookService = new WebhookService();
 const deliveryService = new DeliveryService();
@@ -13,7 +14,7 @@ export const eventWorker = new Worker(
   async (job: Job) => {
     const { eventId } = job.data;
 
-    console.log(`[Event Worker] Processing event ${eventId}`);
+    logger.info('Processing event', { eventId, jobId: job.id });
 
     // Buscar o evento
     const event = await prisma.event.findUnique({
@@ -27,7 +28,11 @@ export const eventWorker = new Worker(
     // Buscar webhooks ativos para esse tipo de evento
     const webhooks = await webhookService.getActiveWebhooksForEvent(event.type);
 
-    console.log(`[Event Worker] Found ${webhooks.length} webhooks for event type "${event.type}"`);
+    logger.debug('Found webhooks for event', {
+      eventId,
+      eventType: event.type,
+      webhookCount: webhooks.length,
+    });
 
     // Criar deliveries para cada webhook
     const deliveries = await Promise.all(
@@ -52,9 +57,12 @@ export const eventWorker = new Worker(
 );
 
 eventWorker.on('completed', (job) => {
-  console.log(`[Event Worker] Job ${job.id} completed:`, job.returnvalue);
+  logger.info('Event job completed', {
+    jobId: job.id,
+    result: job.returnvalue,
+  });
 });
 
 eventWorker.on('failed', (job, err) => {
-  console.error(`[Event Worker] Job ${job?.id} failed:`, err.message);
+  logger.error('Event job failed', err, { jobId: job?.id });
 });

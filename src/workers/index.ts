@@ -1,15 +1,18 @@
 import './event.worker';
 import './delivery.worker';
+import { logger } from '../utils/logger';
 
-console.log('[Workers] All workers started successfully');
+logger.info('Workers started successfully', {
+  workers: ['event-worker', 'delivery-worker'],
+});
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('[Workers] Shutting down gracefully...');
+  logger.info('Received SIGINT, shutting down workers...');
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  console.log('[Workers] Shutting down gracefully...');
+  logger.info('Received SIGTERM, shutting down workers...');
   process.exit(0);
 });

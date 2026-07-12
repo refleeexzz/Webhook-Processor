@@ -1,44 +1,38 @@
 import express from 'express';
 import { env } from './config/env';
 import routes from './routes';
+import { requestLogger } from './middlewares/requestLogger';
+import { errorHandler } from './middlewares/errorHandler';
+import { logger } from './utils/logger';
 
 const app = express();
 
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Logging middleware
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-  next();
-});
+app.use(requestLogger);
 
 // Routes
 app.use('/api', routes);
 
-// Error handling
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({
-    success: false,
-    error: 'Internal server error',
-  });
-});
+// Error handling (must be last)
+app.use(errorHandler);
 
 // Start server
 app.listen(env.PORT, () => {
-  console.log(`[Server] Running on port ${env.PORT}`);
-  console.log(`[Server] Environment: ${env.NODE_ENV}`);
+  logger.info('Server started', {
+    port: env.PORT,
+    environment: env.NODE_ENV,
+  });
 });
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-  console.log('[Server] Shutting down gracefully...');
+  logger.info('Received SIGINT, shutting down gracefully...');
   process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-  console.log('[Server] Shutting down gracefully...');
+  logger.info('Received SIGTERM, shutting down gracefully...');
   process.exit(0);
 });

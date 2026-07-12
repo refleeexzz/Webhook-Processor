@@ -12,7 +12,9 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "lint": "eslint src --ext .ts",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "keywords": ["webhook", "queue", "distributed-system"],
   "author": "",
@@ -27,11 +29,14 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
     "@types/node": "^22.5.0",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.0",
+    "jest": "^29.7.0",
     "prisma": "^5.19.0",
+    "ts-jest": "^29.2.5",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4"
   }
