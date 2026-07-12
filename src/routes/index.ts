@@ -21,7 +21,7 @@ router.use('/reconciliation', reconciliationRoutes);
  *       200:
  *         description: System is healthy
  */
-router.get('/health', (req, res) => {
+router.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 

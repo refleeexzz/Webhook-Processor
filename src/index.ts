@@ -39,7 +39,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 app.use('/api', routes);
 
 // Root redirect
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.json({
     name: 'Webhook Processor API',
     version: '1.0.0',
